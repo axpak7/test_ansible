@@ -1,0 +1,22 @@
+---
+
+- name: Launching Docker-container rabbitmq
+  hosts: local_server
+  gather_facts: false
+  become: True
+  remote_user: psapp
+
+  tasks:
+
+    - name: build docker image
+      docker_image:
+        name: rabbitmq
+        state: build
+
+    - name: Start rabbitmq
+      docker_container:
+        name: rabbitmq
+        image: rabbitmq:latest
+        restart: no
+        state: started
+        command: sleep 1d

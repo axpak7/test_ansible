@@ -1,0 +1,63 @@
+---
+
+- name: Install Docker for Ubuntu
+  hosts: all
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Update apt-get repo and cache
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
+
+    - name: Install aptitude using apt
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Install required system packages
+      apt: 
+        name: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+        state: latest
+        update_cache: yes
+ 
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: 
+        update_cache: yes 
+        name: docker-ce 
+        state: latest
+
+    - name: Install python-pip
+      apt:
+        name: python-pip
+        state: latest
+
+    - name: Pip install docker-py
+      pip:
+        name: docker-py
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+ 
+    - name: Add user psapp to docker group
+      user:
+        name: psapp
+        groups: docker
+        append: yes
